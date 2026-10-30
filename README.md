@@ -10,11 +10,11 @@ Teams ne permet pas toujours de télécharger une transcription, et on ne peut e
 
 Parrot le fait à ta place : il fait défiler la transcription tout seul, récupère chaque réplique et copie le tout. Il ne reste plus qu'à coller le texte dans Claude ou ChatGPT.
 
-## La démo en 20 secondes
+## La démo en 33 secondes
 
-https://github.com/user-attachments/assets/5bd7b7c6-1cce-4e2a-920f-8ba4604af3f2
+<a href="https://github.com/duthiljean/parrot/releases/download/v1.0.0/parrot-demo.mp4"><img src="assets/video-poster.jpg" width="720" alt="Voir la vidéo de démonstration de Parrot"></a>
 
-<sub>Vidéo réalisée avec des données fictives.</sub>
+<sub>Clique sur l'image pour télécharger la vidéo (29 Mo), avec le son. Interface recréée et données fictives.</sub>
 
 ## Ce que fait Parrot
 
@@ -148,7 +148,7 @@ Télécharge la nouvelle version, puis relance `zsh install.sh`. Ton autorisatio
 | `src/transcription-teams-app.js` | Lit la transcription dans Teams |
 | `src/widget.js` | La fenêtre : progression, nettoyage, exports |
 | `src/widget-app.js` | Lance la fenêtre dans `Parrot Widget.app` |
-| `assets/` | Logo |
+| `assets/` | Logo et image de la vidéo |
 
 `Parrot.app` n'est qu'un petit lanceur parce qu'elle est signée sans compte développeur Apple : macOS relie alors l'autorisation à l'empreinte exacte de l'app. Reconstruire l'app ferait perdre l'autorisation, alors que le reste peut évoluer librement. Pour la reconstruire quand même : `zsh install.sh --rebuild-app`.
 
