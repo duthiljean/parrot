@@ -12,9 +12,9 @@ Parrot le fait à ta place : il fait défiler la transcription tout seul, récup
 
 ## La démo en 33 secondes
 
-<a href="https://github.com/duthiljean/parrot/releases/download/v1.0.0/parrot-demo.mp4"><img src="assets/video-poster.jpg" width="720" alt="Voir la vidéo de démonstration de Parrot"></a>
+https://github.com/user-attachments/assets/6427e4cf-fbfb-4bee-8c0a-466ea1726e71
 
-<sub>Clique sur l'image pour télécharger la vidéo (29 Mo), avec le son. Interface recréée et données fictives.</sub>
+<sub>Active le son dans le lecteur. Interface recréée et données fictives. [Version haute qualité](https://github.com/duthiljean/parrot/releases/download/v1.0.0/parrot-demo.mp4) (29 Mo).</sub>
 
 ## Ce que fait Parrot
 
@@ -148,7 +148,7 @@ Télécharge la nouvelle version, puis relance `zsh install.sh`. Ton autorisatio
 | `src/transcription-teams-app.js` | Lit la transcription dans Teams |
 | `src/widget.js` | La fenêtre : progression, nettoyage, exports |
 | `src/widget-app.js` | Lance la fenêtre dans `Parrot Widget.app` |
-| `assets/` | Logo et image de la vidéo |
+| `assets/` | Logo |
 
 `Parrot.app` n'est qu'un petit lanceur parce qu'elle est signée sans compte développeur Apple : macOS relie alors l'autorisation à l'empreinte exacte de l'app. Reconstruire l'app ferait perdre l'autorisation, alors que le reste peut évoluer librement. Pour la reconstruire quand même : `zsh install.sh --rebuild-app`.
 
