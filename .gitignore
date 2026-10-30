@@ -1,0 +1,11 @@
+.DS_Store
+*.app/
+# Données locales créées à l'usage (jamais à publier : elles contiennent des transcriptions)
+derniere-transcription.json
+chemin.json
+preference.json
+erreur-widget.log
+etat.json
+action.json
+photo-temporaire.png
+photos.json
