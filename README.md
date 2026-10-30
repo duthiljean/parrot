@@ -10,7 +10,7 @@ Teams ne permet pas toujours de télécharger une transcription, et on ne peut e
 
 Parrot le fait à ta place : il fait défiler la transcription tout seul, récupère chaque réplique et copie le tout. Il ne reste plus qu'à coller le texte dans Claude ou ChatGPT.
 
-## La démo en 33 secondes
+## Démo en vidéo
 
 https://github.com/user-attachments/assets/6427e4cf-fbfb-4bee-8c0a-466ea1726e71
 
