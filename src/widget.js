@@ -17,35 +17,45 @@ const TT_SIZES = { hud: [320, 84], error: [320, 150], card: [348, 600] };
 // Perroquet de la pastille : le fond reste fixe, le CSS anime seulement l'oiseau
 const TT_PARROT = `<svg class="parrot" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
   <defs>
-    <linearGradient id="p-bg" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#2FD4C0"/><stop offset="1" stop-color="#0B6FA8"/></linearGradient>
-    <linearGradient id="p-red" x1="0.2" y1="0" x2="0.7" y2="1"><stop offset="0" stop-color="#FF6A3D"/><stop offset="1" stop-color="#E01E3C"/></linearGradient>
-    <linearGradient id="p-beak" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#FFF6E3"/><stop offset="1" stop-color="#F3C685"/></linearGradient>
-    <linearGradient id="p-blue" x1="0.2" y1="0" x2="0.8" y2="1"><stop offset="0" stop-color="#4C8DFF"/><stop offset="1" stop-color="#1B3FC4"/></linearGradient>
     <clipPath id="p-clip"><rect x="100" y="100" width="824" height="824" rx="186"/></clipPath>
+    <clipPath id="p-body"><path d="M306 806C300 704 268 604 286 504C302 344 402 256 522 256C622 256 684 316 694 396L694 472C694 522 652 552 628 578C612 596 606 620 600 650C584 730 516 796 432 836C388 856 334 848 306 806Z"/></clipPath>
+    <clipPath id="p-side"><path d="M328 522C418 502 500 542 500 622C500 702 440 772 360 804C338 722 318 622 328 522Z"/></clipPath>
+    <clipPath id="p-beak"><path d="M608 274C690 256 806 340 812 462C815 514 796 558 762 582C772 540 752 506 700 490C672 482 650 480 628 484C652 430 654 360 608 274Z"/></clipPath>
+    <clipPath id="p-jaw"><path d="M640 478C680 476 718 494 720 540C722 566 692 588 660 588C644 588 632 578 624 560Z"/></clipPath>
   </defs>
-  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#p-bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="#E10014"/>
   <g clip-path="url(#p-clip)">
+    <g fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="10" stroke-linecap="round"><path d="M700 90L960 350M770 90L960 280M640 90L960 410"/><path d="M60 640L400 980M60 720L320 980M60 560L480 980"/></g>
     <g class="p-wind"><path d="M640 250h120"/><path d="M720 700h150"/><path d="M600 830h100"/></g>
-    <g transform="translate(66 62) scale(.87)">
+    <g transform="translate(52 62) scale(.87) translate(90 0) skewX(-8)">
       <g class="p-bird">
-        <g class="p-far"><path d="M328 522C418 502 500 542 500 622C500 702 440 772 360 804C338 722 318 622 328 522Z" fill="#14309C"/></g>
+        <g class="p-far"><path d="M328 522C418 502 500 542 500 622C500 702 440 772 360 804C338 722 318 622 328 522Z" fill="#5A0612"/></g>
         <g class="p-tail">
-          <path d="M312 760L222 846C262 870 318 862 356 826Z" fill="#FFC93C"/>
-          <path d="M322 790L268 898C330 900 398 872 436 824Z" fill="#1B3FC4"/>
+          <path d="M300 720C250 734 206 754 168 780C204 832 270 838 330 800Z" fill="#fff"/>
+          <path d="M312 760L222 846C262 870 318 862 356 826Z" fill="#FFCC00"/>
+          <path d="M322 790L268 898C330 900 398 872 436 824Z" fill="#8E0018"/>
         </g>
         <g class="p-crest">
-          <path d="M404 312C352 246 306 216 244 222C268 268 322 316 376 346Z" fill="#FFC93C"/>
-          <path d="M446 282C414 214 372 176 312 168C328 222 372 274 416 304Z" fill="#FF8A3D"/>
-          <path d="M496 262C486 202 456 156 406 134C406 192 436 248 468 274Z" fill="#FF5A3C"/>
+          <path d="M404 312C352 246 306 216 244 222C268 268 322 316 376 346Z" fill="#FFCC00"/>
+          <path d="M446 282C414 214 372 176 312 168C328 222 372 274 416 304Z" fill="#fff"/>
+          <path d="M496 262C486 202 456 156 406 134C406 192 436 248 468 274Z" fill="#8E0018"/>
         </g>
-        <path d="M306 806C300 704 268 604 286 504C302 344 402 256 522 256C622 256 684 316 694 396L694 472C694 522 644 562 602 592C602 690 530 790 432 836C388 856 334 848 306 806Z" fill="url(#p-red)"/>
-        <path d="M640 482C680 482 716 502 716 542C716 566 690 586 660 586C644 586 632 576 626 560Z" fill="#2E2A33"/>
-        <path d="M640 322C722 312 802 372 807 472C810 518 792 558 762 578C766 532 746 492 702 480C674 472 652 470 632 472Z" fill="url(#p-beak)"/>
-        <ellipse cx="558" cy="388" rx="98" ry="88" fill="#FFF7EC"/>
-        <circle cx="574" cy="378" r="46" fill="#FFC93C"/><circle cx="574" cy="378" r="33" fill="#1E1B24"/><circle cx="587" cy="365" r="11" fill="#fff"/>
+        <path d="M306 806C300 704 268 604 286 504C302 344 402 256 522 256C622 256 684 316 694 396L694 472C694 522 652 552 628 578C612 596 606 620 600 650C584 730 516 796 432 836C388 856 334 848 306 806Z" fill="#FF9F0A"/>
+        <g clip-path="url(#p-body)"><path d="M306 806C300 704 268 604 286 504C302 344 402 256 522 256C622 256 684 316 694 396L694 472C694 522 652 552 628 578C612 596 606 620 600 650C584 730 516 796 432 836C388 856 334 848 306 806Z" transform="translate(26 -12)" fill="#FFCC00"/></g>
+        <g fill="none" stroke="#FF9F0A" stroke-width="10" stroke-linecap="round"><path d="M531 598q22 26 44 0"/><path d="M523 656q22 26 44 0" transform="rotate(6 545 656)"/><path d="M502 714q22 26 44 0" transform="rotate(14 524 714)"/></g>
+        <ellipse cx="530" cy="388" rx="84" ry="86" fill="#fff"/>
+        <circle cx="554" cy="380" r="46" fill="#1E73E8"/><circle cx="554" cy="380" r="33" fill="#5A0612"/><circle cx="567" cy="367" r="11" fill="#fff"/>
+        <path d="M640 478C680 476 718 494 720 540C722 566 692 588 660 588C644 588 632 578 624 560Z" fill="#FFF4D6"/>
+        <g clip-path="url(#p-jaw)"><path d="M718 522C716 556 690 574 660 574C644 574 632 566 620 554L620 600L730 600L730 522Z" fill="#F2B84B"/></g>
+        <path d="M608 274C690 256 806 340 812 462C815 514 796 558 762 582C772 540 752 506 700 490C672 482 650 480 628 484C652 430 654 360 608 274Z" fill="#F2B84B" stroke="#E10014" stroke-width="18" stroke-linejoin="miter" stroke-miterlimit="6" paint-order="stroke"/>
+        <g clip-path="url(#p-beak)"><path d="M608 274C690 256 806 340 812 462C815 514 796 558 762 582C772 540 752 506 700 490C672 482 650 480 628 484C652 430 654 360 608 274Z" transform="translate(-14 -6)" fill="#FFF4D6"/></g>
         <g class="p-wing">
-          <path d="M328 522C418 502 500 542 500 622C500 702 440 772 360 804C338 722 318 622 328 522Z" fill="url(#p-blue)"/>
-          <path d="M332 540C408 526 470 556 480 612C420 586 372 582 330 592Z" fill="#FFC93C"/>
+          <path d="M328 522C418 502 500 542 500 622C500 702 440 772 360 804C338 722 318 622 328 522Z" fill="#7A0016"/>
+          <g clip-path="url(#p-side)">
+            <path d="M320 590C372 572 430 580 510 610L510 640Q474 668 432 640Q416 688 380 652Q360 696 320 656Z" fill="#A8001A"/>
+            <path d="M320 510L510 510L510 612C430 580 372 572 320 590Z" fill="#E10014"/>
+            <g fill="none" stroke="#A8001A" stroke-width="10" stroke-linecap="round"><path d="M380 658C384 704 380 752 366 802"/><path d="M432 646C436 692 430 736 404 780"/></g>
+          </g>
         </g>
       </g>
     </g>

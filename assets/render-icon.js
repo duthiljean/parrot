@@ -8,7 +8,7 @@ function run(argv) {
   const img = $.NSImage.alloc.initWithContentsOfFile($(src));
   if (img.isNil()) return 'SVG illisible';
   const rep = $.NSBitmapImageRep.alloc.initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
-    null, size, size, 8, 4, true, false, $.NSCalibratedRGBColorSpace, 0, 0);
+    null, size, size, 8, 4, true, false, $.NSDeviceRGBColorSpace, 0, 0);
   rep.size = $.NSMakeSize(size, size);
   $.NSGraphicsContext.saveGraphicsState;
   $.NSGraphicsContext.setCurrentContext($.NSGraphicsContext.graphicsContextWithBitmapImageRep(rep));

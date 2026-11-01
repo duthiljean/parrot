@@ -1,49 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0.9" y2="1">
-      <stop offset="0" stop-color="#2FD4C0"/>
-      <stop offset="1" stop-color="#0B6FA8"/>
-    </linearGradient>
-    <linearGradient id="red" x1="0.2" y1="0" x2="0.7" y2="1">
-      <stop offset="0" stop-color="#FF6A3D"/>
-      <stop offset="1" stop-color="#E01E3C"/>
-    </linearGradient>
-    <linearGradient id="beak" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0" stop-color="#FFF6E3"/>
-      <stop offset="1" stop-color="#F3C685"/>
-    </linearGradient>
-    <linearGradient id="wing" x1="0.2" y1="0" x2="0.8" y2="1">
-      <stop offset="0" stop-color="#4C8DFF"/>
-      <stop offset="1" stop-color="#1B3FC4"/>
-    </linearGradient>
-  </defs>
-
-  <!-- Fond : carré arrondi aux proportions des icônes macOS -->
-  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
-
-  <!-- Crête -->
-  <path d="M404 312 C352 246 306 216 244 222 C268 268 322 316 376 346 Z" fill="#FFC93C"/>
-  <path d="M446 282 C414 214 372 176 312 168 C328 222 372 274 416 304 Z" fill="#FF8A3D"/>
-  <path d="M496 262 C486 202 456 156 406 134 C406 192 436 248 468 274 Z" fill="#FF5A3C"/>
-
+<defs>
+  <clipPath id="corps"><path d="M306 806 C300 704 268 604 286 504 C302 344 402 256 522 256 C622 256 684 316 694 396 L694 472 C694 522 652 552 628 578 C612 596 606 620 600 650 C584 730 516 796 432 836 C388 856 334 848 306 806 Z"/></clipPath>
+  <clipPath id="aile"><path d="M328 522 C418 502 500 542 500 622 C500 702 440 772 360 804 C338 722 318 622 328 522 Z"/></clipPath>
+  <clipPath id="bec"><path d="M608 274 C690 256 806 340 812 462 C815 514 796 558 762 582 C772 540 752 506 700 490 C672 482 650 480 628 484 C652 430 654 360 608 274 Z"/></clipPath>
+  <clipPath id="machoire"><path d="M640 478 C680 476 718 494 720 540 C722 566 692 588 660 588 C644 588 632 578 624 560 Z"/></clipPath>
+  <clipPath id="fond"><rect x="100" y="100" width="824" height="824" rx="186"/></clipPath>
+</defs>
+<rect x="100" y="100" width="824" height="824" rx="186" fill="#E10014"/>
+<g clip-path="url(#fond)" stroke="#fff" stroke-opacity=".16" stroke-width="10" stroke-linecap="round"><path d="M700 90 L960 350M770 90 L960 280M640 90 L960 410"/><path d="M60 640 L400 980M60 720 L320 980M60 560 L480 980"/></g>
+<g transform="translate(90 0) skewX(-8)">
+  <!-- Huppe -->
+  <path d="M404 312 C352 246 306 216 244 222 C268 268 322 316 376 346 Z" fill="#FFCC00"/>
+  <path d="M446 282 C414 214 372 176 312 168 C328 222 372 274 416 304 Z" fill="#FFFFFF"/>
+  <path d="M496 262 C486 202 456 156 406 134 C406 192 436 248 468 274 Z" fill="#8E0018"/>
   <!-- Queue -->
-  <path d="M312 760 L222 846 C262 870 318 862 356 826 Z" fill="#FFC93C"/>
-  <path d="M322 790 L268 898 C330 900 398 872 436 824 Z" fill="#1B3FC4"/>
-
-  <!-- Corps et tête -->
-  <path d="M306 806 C300 704 268 604 286 504 C302 344 402 256 522 256 C622 256 684 316 694 396 L694 472 C694 522 644 562 602 592 C602 690 530 790 432 836 C388 856 334 848 306 806 Z" fill="url(#red)"/>
-
+  <path d="M300 720 C250 734 206 754 168 780 C204 832 270 838 330 800 Z" fill="#FFFFFF"/>
+  <path d="M312 760 L222 846 C262 870 318 862 356 826 Z" fill="#FFCC00"/>
+  <path d="M322 790 L268 898 C330 900 398 872 436 824 Z" fill="#8E0018"/>
+  <!-- Corps : une ombre sur le dos, puis le jaune -->
+  <path d="M306 806 C300 704 268 604 286 504 C302 344 402 256 522 256 C622 256 684 316 694 396 L694 472 C694 522 652 552 628 578 C612 596 606 620 600 650 C584 730 516 796 432 836 C388 856 334 848 306 806 Z" fill="#FF9F0A"/>
+  <g clip-path="url(#corps)"><path d="M306 806 C300 704 268 604 286 504 C302 344 402 256 522 256 C622 256 684 316 694 396 L694 472 C694 522 652 552 628 578 C612 596 606 620 600 650 C584 730 516 796 432 836 C388 856 334 848 306 806 Z" transform="translate(26 -12)" fill="#FFCC00"/></g>
+  <!-- Plumes de la poitrine -->
+  <g fill="none" stroke="#FF9F0A" stroke-width="10" stroke-linecap="round">
+    <path d="M531 598 q22 26 44 0"/><path d="M523 656 q22 26 44 0" transform="rotate(6 545 656)"/><path d="M502 714 q22 26 44 0" transform="rotate(14 524 714)"/>
+  </g>
   <!-- Aile -->
-  <path d="M328 522 C418 502 500 542 500 622 C500 702 440 772 360 804 C338 722 318 622 328 522 Z" fill="url(#wing)"/>
-  <path d="M332 540 C408 526 470 556 480 612 C420 586 372 582 330 592 Z" fill="#FFC93C"/>
-
-  <!-- Bec -->
-  <path d="M640 482 C680 482 716 502 716 542 C716 566 690 586 660 586 C644 586 632 576 626 560 Z" fill="#2E2A33"/>
-  <path d="M640 322 C722 312 802 372 807 472 C810 518 792 558 762 578 C766 532 746 492 702 480 C674 472 652 470 632 472 Z" fill="url(#beak)"/>
-
+  <path d="M328 522 C418 502 500 542 500 622 C500 702 440 772 360 804 C338 722 318 622 328 522 Z" fill="#7A0016"/>
+  <g clip-path="url(#aile)">
+    <path d="M320 590 C372 572 430 580 510 610 L510 640 Q474 668 432 640 Q416 688 380 652 Q360 696 320 656 Z" fill="#A8001A"/>
+    <path d="M320 510 L510 510 L510 612 C430 580 372 572 320 590 Z" fill="#E10014"/>
+    <g fill="none" stroke="#A8001A" stroke-width="10" stroke-linecap="round">
+      <path d="M380 658 C384 704 380 752 366 802"/><path d="M432 646 C436 692 430 736 404 780"/>
+    </g>
+  </g>
   <!-- Joue et œil -->
-  <ellipse cx="558" cy="388" rx="98" ry="88" fill="#FFF7EC"/>
-  <circle cx="574" cy="378" r="46" fill="#FFC93C"/>
-  <circle cx="574" cy="378" r="33" fill="#1E1B24"/>
-  <circle cx="587" cy="365" r="11" fill="#FFFFFF"/>
+  <ellipse cx="530" cy="388" rx="84" ry="86" fill="#FFFFFF"/>
+  <circle cx="554" cy="380" r="46" fill="#1E73E8"/>
+  <circle cx="554" cy="380" r="33" fill="#5A0612"/>
+  <circle cx="567" cy="367" r="11" fill="#FFFFFF"/>
+  <!-- Bec : deux pièces de même couleur, détachées de la tête par un contour rouge -->
+  <path d="M640 478 C680 476 718 494 720 540 C722 566 692 588 660 588 C644 588 632 578 624 560 Z" fill="#FFF4D6"/>
+  <g clip-path="url(#machoire)"><path d="M718 522 C716 556 690 574 660 574 C644 574 632 566 620 554 L620 600 L730 600 L730 522 Z" fill="#F2B84B"/></g>
+  <path d="M608 274 C690 256 806 340 812 462 C815 514 796 558 762 582 C772 540 752 506 700 490 C672 482 650 480 628 484 C652 430 654 360 608 274 Z" fill="#E10014" stroke="#E10014" stroke-width="18" stroke-linejoin="miter" stroke-miterlimit="6"/>
+  <path d="M608 274 C690 256 806 340 812 462 C815 514 796 558 762 582 C772 540 752 506 700 490 C672 482 650 480 628 484 C652 430 654 360 608 274 Z" fill="#F2B84B"/>
+  <g clip-path="url(#bec)"><path d="M608 274 C690 256 806 340 812 462 C815 514 796 558 762 582 C772 540 752 506 700 490 C672 482 650 480 628 484 C652 430 654 360 608 274 Z" transform="translate(-14 -6)" fill="#FFF4D6"/></g>
+</g>
 </svg>
