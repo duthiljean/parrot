@@ -7,7 +7,7 @@
 //
 // Dialogue avec le programme de copie, par fichiers dans le dossier de données :
 //   etat.json                  { state: 'start' | 'progress' | 'done' | 'error', ... }
-//   derniere-transcription.json { title, rows, text, holes }
+//   derniere-transcription.json { title, rows, text, holes, incomplete }
 //   action.json                { target } : demande à Parrot de coller le texte (voir le programme)
 
 const TT_DIR = () => $.NSHomeDirectory().js + '/Library/Application Support/Transcription Teams/';
@@ -242,7 +242,7 @@ function ttClient() {
       const first = sp.map((s) => s.split(/\s+/)[0]);
       el('stack').innerHTML = shownPeople;
       el('names').textContent = first.length <= 2 ? first.join(' et ') : `${first.slice(0, 2).join(', ')} et ${first.length - 2} autre${first.length > 3 ? 's' : ''}`;
-      el('warn').classList.toggle('hidden', !d.holes);
+      el('warn').classList.toggle('hidden', !d.holes && !d.incomplete);
       document.querySelectorAll('.tile').forEach((b) => b.classList.toggle('pref', b.dataset.go === prefs.assistant));
       el('hud').classList.add('hidden');
       el('card').classList.remove('hidden');

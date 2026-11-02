@@ -87,7 +87,7 @@ Remplace « Windows » par ton système si besoin. Cette version n'est ni fourni
 ## Utilisation
 
 1. Dans Teams, ouvre la réunion, puis l'onglet **Transcription**.
-2. Lance Parrot avec ton raccourci, depuis ⌘ Espace ou depuis Applications. Ne touche pas à Teams pendant la copie.
+2. Lance Parrot avec ton raccourci, depuis ⌘ Espace ou depuis Applications. Ne touche ni à Teams, ni à la souris, ni au clavier pendant la copie.
 3. À la fin, la transcription est déjà dans ton presse-papiers, et une fenêtre apparaît par-dessus Teams.
 4. Clique sur **Claude** ou **ChatGPT** pour coller le texte dans une nouvelle conversation, puis envoie-le toi-même.
 
@@ -112,7 +112,7 @@ Avant de coller dans une app, vérifie la conversation qui s'ouvre : selon l'app
 
 Parrot n'a ni compte, ni serveur, ni connexion à Internet, et n'utilise aucune API de Microsoft. Il lit seulement ce que Teams affiche à l'écran. Le texte ne quitte ton Mac que lorsque tu l'envoies toi-même à une IA.
 
-Sur ton Mac, Parrot conserve la dernière transcription, les photos récupérées et tes préférences dans `~/Library/Application Support/Transcription Teams/`.
+Sur ton Mac, Parrot conserve la dernière transcription, les photos récupérées, tes préférences et un journal de la dernière copie (heures et nombres seulement, sans le texte) dans `~/Library/Application Support/Transcription Teams/`.
 
 ## Dépannage
 
@@ -149,9 +149,11 @@ Télécharge la nouvelle version, puis relance `zsh install.sh`. Ton autorisatio
 
 1. Parrot lit la fenêtre de Teams grâce à l'accessibilité de macOS (`AXEnhancedUserInterface`, via System Events).
 2. Teams ne garde qu'une partie des répliques en mémoire. Parrot en lit une tranche, demande d'afficher la dernière réplique lue (`AXScrollToVisible`), et recommence jusqu'à la fin.
-3. À chaque étape, il vérifie que la liste n'a pas bougé pendant la lecture et que la dernière ligne lue est encore présente. Sinon, il revient en arrière.
-4. Il retire les doublons, trie les répliques par heure et copie le texte.
-5. La fenêtre de fin est une app séparée, sans autorisation particulière : une page web dans une fenêtre macOS native.
+   Au départ, il donne un petit coup de molette sur la transcription, comme le ferait quelqu'un. Sans ce geste, Teams ramène la liste en haut pendant qu'il charge une transcription qu'on vient de rouvrir. Si le pointeur n'est pas sur la transcription, il y passe une fraction de seconde, puis revient.
+3. À chaque étape, il attend que Teams ait fini de recharger la liste, vérifie qu'elle n'a pas bougé pendant la lecture et que la dernière ligne lue est encore présente. Sinon, il revient en arrière.
+4. S'il s'arrête sans avoir vu la fin de la transcription, la fenêtre de fin prévient qu'il manque peut-être des passages.
+5. Il retire les doublons, trie les répliques par heure et copie le texte.
+6. La fenêtre de fin est une app séparée, sans autorisation particulière : une page web dans une fenêtre macOS native.
 
 ### Les fichiers
 

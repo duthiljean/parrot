@@ -14,7 +14,10 @@ function run(argv) {
   const app = Application.currentApplication();
   app.includeStandardAdditions = true;
   const se = Application('System Events');
-  const log = (m) => { if (debug) console.log(m); };
+  // Journal de la dernière copie (heures et nombres seulement, jamais le texte des répliques),
+  // pour comprendre un problème après coup
+  const journal = [];
+  const log = (m) => { if (debug) console.log(m); else journal.push(`${((Date.now() - tStart) / 1000).toFixed(1)} s  ${m}`); };
   ObjC.import('ApplicationServices');
   ObjC.import('AppKit');
 
@@ -77,6 +80,7 @@ function run(argv) {
 
   const fail = (msg) => {
     if (debug) return 'ERREUR: ' + msg;
+    journal.push('erreur : ' + msg.split('\n')[0]); writeFile('journal.txt', journal.join('\n'));
     report({ state: 'error', message: msg });
     try {
       app.doShellScript(`pgrep -f ${WIDGET_PROCESS}`); // le widget affiche l'erreur
@@ -235,9 +239,9 @@ function run(argv) {
     }
     if (!stable) {
       log('lecture instable, ignorée');
-      return { added: 0, min: null, max: null, moving: true };
+      return { added: 0, min: null, max: null, lastIdx: -1, moving: true };
     }
-    let added = 0, lastTime = 0, min = null, max = null, firstIdx = -1, lastIdx = -1, lastText = '';
+    let added = 0, lastTime = 0, min = null, max = null, firstIdx = -1, lastIdx = -1, lastText = '', pending = 0;
     const times = [], slotOf = [], speakers = [];
     for (let i = 0; i < labels.length; i++) {
       let speaker = '', time = null;
@@ -248,7 +252,7 @@ function run(argv) {
       const texts = strings([d4[i], d5[i], d6[i]]).filter((v) => v !== speaker && !ONLY_TIME_RE.test(v) && !HEADER_RE.test(v));
       if (!speaker && texts.length > 1) speaker = texts.shift(); // ex. « Marie Dupont » + « transcription démarrée »
       const text = texts.join(' ').replace(/\s+/g, ' ').trim();
-      if (!text) continue; // réplique pas encore chargée
+      if (!text) { if (speaker || time != null) pending++; continue; } // réplique pas encore chargée
       if (time == null) time = lastTime; else lastTime = time;
       times.push(time);
       slotOf.push(i);
@@ -260,7 +264,7 @@ function run(argv) {
       if (!prev) { entries.set(key, { time, speaker, text, seq: seq++ }); added++; }
       else if (text.length > prev.text.length) prev.text = text;
     }
-    log(`lecture : ${labels.length} emplacements, ${fmt(min || 0)}-${fmt(max || 0)}, +${added}, total ${entries.size}`);
+    log(`lecture : ${labels.length} emplacements, ${fmt(min || 0)}-${fmt(max || 0)}, +${added}, total ${entries.size}${pending ? `, ${pending} en chargement` : ''}`);
     // Début de la fenêtre autour de la ligne sélectionnée (après le plus grand saut d'heure)
     // et fin du morceau continu qui part du début
     let windowStart = times.length ? times[0] : 0, contigEnd = max, contigIdx = lastIdx, jump = 0;
@@ -274,7 +278,7 @@ function run(argv) {
     // Première ligne de la fenêtre autour de l'écran (après le début de réunion gardé en mémoire)
     let windowIdx = firstIdx;
     if (windowStart > (times[0] || 0)) windowIdx = slotOf[times.indexOf(windowStart)];
-    return { added, min, max, firstIdx, lastIdx, windowStart, windowIdx, times, contigEnd, contigIdx, labelsJSON, slots: labels.length, endHere: END_RE.test(lastText), speakers };
+    return { added, min, max, firstIdx, lastIdx, windowStart, windowIdx, times, contigEnd, contigIdx, labelsJSON, slots: labels.length, endHere: END_RE.test(lastText), speakers, pending };
   }
 
   // ---------- Photos des intervenants ----------
@@ -324,21 +328,48 @@ function run(argv) {
   const arg = (name, def) => { const a = argv.find((x) => x.startsWith('--' + name + '=')); return a ? +a.split('=')[1] : def; };
 
   // Fait défiler puis attend juste le temps que Teams affiche les nouvelles répliques :
-  // dès que les étiquettes ont changé puis ne bougent plus. Renvoie ces étiquettes, ou
-  // null si rien n'a changé pendant maxWait secondes.
+  // dès que les étiquettes ont changé puis ne bougent plus pendant deux relevés de suite
+  // (Teams vide parfois la liste un instant avant de la remplir). Renvoie ces étiquettes,
+  // ou null si rien n'a changé pendant maxWait secondes.
   function scrollTo(idx, beforeJSON, maxWait) {
     try { list.uiElements[idx].actions.byName('AXScrollToVisible').perform(); } catch (e) { return null; }
     const t = Date.now();
-    let prev = beforeJSON, changed = false;
+    let prev = beforeJSON, changed = false, same = 0;
     while (Date.now() - t < maxWait * 1000) {
       delay(0.05);
       const cur = readLabels();
       if (!cur) continue;
       const json = JSON.stringify(cur);
-      if (json !== prev) { changed = true; prev = json; continue; }
-      if (changed) return cur;
+      if (json !== prev) { changed = true; prev = json; same = 0; continue; }
+      if (changed && ++same >= 2) return cur;
     }
     return changed ? JSON.parse(prev) : null;
+  }
+
+  // Attend que la liste change puis se stabilise, sans la faire défiler nous-mêmes
+  function waitChange(beforeJSON, maxWait) {
+    const t = Date.now();
+    let prev = beforeJSON, changed = false, same = 0;
+    while (Date.now() - t < maxWait * 1000) {
+      delay(0.05);
+      const cur = readLabels();
+      if (!cur) continue;
+      const json = JSON.stringify(cur);
+      if (json !== prev) { changed = true; prev = json; same = 0; continue; }
+      if (changed && ++same >= 2) return cur;
+    }
+    return changed ? JSON.parse(prev) : null;
+  }
+
+  // Attend que la liste ne change plus pendant `calm` secondes (au plus maxWait secondes)
+  function settle(calm, maxWait) {
+    const t = Date.now();
+    let prev = null, since = t;
+    while (Date.now() - t < maxWait * 1000) {
+      const json = JSON.stringify(readLabels());
+      if (json !== prev) { prev = json; since = Date.now(); } else if (Date.now() - since >= calm * 1000) return;
+      delay(0.1);
+    }
   }
 
   const maxPasses = arg('max', 300);
@@ -355,7 +386,57 @@ function run(argv) {
   if (firstSlot < 0) return fail('Impossible de lire la transcription. Fais défiler un peu la transcription dans Teams, puis relance.');
   const top = scrollTo(firstSlot, JSON.stringify(startLabels), 0.6);
   let r = readVisible(top || undefined);
+  // Teams est peut-être encore en train d'afficher la transcription : on lui laisse le temps
+  for (let w = 0; w < 4 && r.lastIdx < 0; w++) { settle(0.6, 3); r = readVisible(); }
   if (r.lastIdx < 0) return fail('Impossible de lire la transcription. Fais défiler un peu la transcription dans Teams, puis relance.');
+  // Teams ramène la liste en haut quand il charge la suite d'une transcription qu'on vient
+  // d'ouvrir, tant que personne ne l'a fait défiler soi-même. Le défilement par l'accessibilité
+  // et les touches du clavier ne comptent pas pour lui : on fait donc comme quelqu'un, avec un
+  // petit coup de molette au-dessus de la transcription. Si le pointeur n'y est pas déjà, il y
+  // est placé le temps d'envoyer la molette (une fraction de seconde), puis remis où il était.
+  ObjC.import('CoreGraphics');
+  function humanScroll(idx, beforeJSON) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      if (!teamsReady()) { log('geste molette : Teams pas au premier plan'); return null; }
+      let home = null, away = 0;
+      // Un petit défilement ne change pas toujours les répliques chargées : on regarde aussi si
+      // la réplique visée a bougé à l'écran
+      const posY = () => { try { return list.uiElements[idx].position()[1]; } catch (e) { return null; } };
+      const y0 = posY();
+      try {
+        home = $.CGEventGetLocation($.CGEventCreate(null));
+        const [x, y] = list.position(), [w, h] = list.size();
+        const inside = home.x > x + 20 && home.x < x + w - 20 && home.y > y + 20 && home.y < y + h - 20;
+        const at = inside ? home : $.CGPointMake(x + w / 2, y + h * 0.6);
+        const t = Date.now();
+        if (!inside) { $.CGWarpMouseCursorPosition(at); $.CGEventPost(0, $.CGEventCreateMouseEvent(null, 5, at, 0)); delay(0.03); }
+        for (let i = 0; i < 2; i++) { // deux petits crans, comme une vraie molette
+          const ev = $.CGEventCreateScrollWheelEvent2(null, 0, 1, -160, 0, 0);
+          $.CGEventSetLocation(ev, at);
+          $.CGEventPost(0, ev);
+          delay(0.03);
+        }
+        if (!inside) { $.CGWarpMouseCursorPosition(home); $.CGEventPost(0, $.CGEventCreateMouseEvent(null, 5, home, 0)); away = Date.now() - t; }
+        home = null;
+      } catch (e) { log('geste molette impossible : ' + e.message); }
+      if (home) $.CGWarpMouseCursorPosition(home);
+      let moved = null;
+      for (let k = 0; k < 12 && !moved; k++) {
+        delay(0.05);
+        const y = posY();
+        if (y0 != null && y !== y0) moved = readLabels();
+      }
+      if (!moved) moved = waitChange(beforeJSON, 0.4);
+      else { const later = waitChange(JSON.stringify(moved), 0.3); if (later) moved = later; }
+      log(`geste molette : ${moved ? 'la liste a bougé' : 'rien n\'a bougé'} (essai ${attempt + 1}${away ? `, pointeur déplacé ${away} ms` : ', pointeur déjà sur la liste'})`);
+      if (moved) return moved;
+    }
+    return null;
+  }
+  {
+    const moved = humanScroll(r.firstIdx, r.labelsJSON);
+    if (moved) { const again = readVisible(moved); if (again.lastIdx >= 0) r = again; }
+  }
   // Si Teams garde encore d'anciennes lignes plus loin, repartir de la fin du morceau continu
   if (r.contigEnd < r.max) { r.lastIdx = r.contigIdx; r.endHere = false; }
   let cursor = r.contigEnd, holes = 0, jumps = 0;
@@ -377,20 +458,67 @@ function run(argv) {
   const showProgress = () => report({ state: 'progress', label: 'Lecture de la transcription…', detail: `${fmt(r.max || 0)} · ${entries.size} répliques`, percent: r.endHere ? 1 : percentRead() });
   grabPhotos(r);
   showProgress();
-  for (let k = 0, still = 0; k < maxPasses && still < 3 && r.lastIdx >= 0; k++) {
-    // Dernière ligne = « transcription arrêtée » : une seule vérification suffit, au cas où la
-    // transcription aurait été relancée. Sinon, on laisse à Teams de plus en plus de temps.
+  // Teams charge parfois les répliques par morceaux, surtout à la première ouverture d'une
+  // transcription : quand rien ne bouge, on attend de plus en plus longtemps, en visant tour à
+  // tour la dernière réplique lue et le bas de la liste. On ne s'arrête qu'à la vraie fin
+  // (« transcription arrêtée ») ou après tous ces essais, et dans ce cas le widget prévient.
+  const WAITS = [1.2, 1.8, 2.6, 3.6];
+  let incomplete = false, still = 0, stuck = 0, resets = 0, lastMax = r.max;
+  const giveUp = (why) => { log(`arrêt avant la fin : ${why}`); incomplete = true; };
+  for (let k = 0; k < maxPasses && r.lastIdx >= 0; k++) {
+    // Dernière ligne = « transcription arrêtée » : une vérification suffit, au cas où la
+    // transcription aurait été relancée
     const atEnd = r.endHere;
-    const fresh = scrollTo(r.lastIdx, r.labelsJSON, atEnd ? 0.9 : 1.2 + 0.5 * still);
-    if (!fresh) { if (atEnd) break; still++; continue; }
+    const target = still % 2 === 1 && r.slots > 0 ? r.slots - 1 : r.lastIdx;
+    const fresh = scrollTo(target, r.labelsJSON, atEnd ? 2 : WAITS[Math.min(still, WAITS.length - 1)]);
+    if (!fresh) {
+      if (atEnd) break;
+      if (++still >= WAITS.length) { giveUp('Teams ne charge plus rien'); break; }
+      continue;
+    }
     let n = readVisible(fresh);
-    if (n.lastIdx < 0) { still++; continue; }
+    // Juste après un défilement vers l'avant, Teams peut n'afficher un instant que le début de
+    // la réunion : on lui laisse d'abord une demi-seconde pour revenir.
+    const backward = () => n.lastIdx >= 0 && n.max < cursor && n.max < r.max;
+    for (let w = 0; w < 3 && backward(); w++) {
+      delay(0.15);
+      const again = readVisible();
+      if (again.lastIdx >= 0) n = again;
+    }
+    // Sinon, c'est Teams qui a ramené la liste en haut : il le fait quand il reçoit la suite
+    // d'une transcription qui vient d'être ouverte. On le laisse finir de charger avant de
+    // repartir vers l'avant, au lieu de le relancer pendant le chargement, ce qui le ferait
+    // revenir au début encore et encore.
+    if (backward()) {
+      resets++;
+      log(`  Teams est revenu en haut (${fmt(n.max)} < ${fmt(cursor)}), attente de la fin du chargement`);
+      report({ state: 'progress', label: 'Teams charge la suite…', detail: `${fmt(cursor)} · ${entries.size} répliques`, percent: percentRead() });
+      settle(0.6, 2.5);
+      let again = readVisible();
+      if (again.lastIdx >= 0) n = again;
+      // Teams s'est remis à suivre le début : on refait le geste pour qu'il arrête
+      const moved = humanScroll(n.firstIdx, n.labelsJSON);
+      if (moved) { again = readVisible(moved); if (again.lastIdx >= 0) n = again; }
+      if (resets > 15) { giveUp('Teams revient sans cesse au début'); break; }
+    }
+    // Des répliques sont affichées sans leur texte : on leur laisse le temps d'arriver
+    for (let w = 0; w < 8 && n.pending > 0; w++) {
+      delay(0.25);
+      const again = readVisible();
+      if (again.lastIdx >= 0) n = again;
+    }
+    if (n.lastIdx < 0) {
+      if (++still >= WAITS.length) { giveUp('lecture impossible'); break; }
+      continue;
+    }
     // Continuité stricte : la dernière ligne lue doit encore être là, sinon on a sauté des
-    // répliques. On revient en arrière jusqu'à la retrouver.
+    // répliques. On revient en arrière jusqu'à la retrouver. Si remonter vers le début de la
+    // fenêtre ne fait rien bouger (ligne déjà à l'écran), on vise la ligne juste au-dessus.
     for (let k2 = 0; k2 < 8 && n.times && n.times.indexOf(cursor) < 0 && n.max > cursor; k2++) {
       jumps++;
       log(`recul : ${fmt(cursor)} absent de la lecture (${fmt(n.windowStart)}-${fmt(n.max)})`);
-      const back = scrollTo(n.windowIdx, n.labelsJSON, 1.2);
+      let back = scrollTo(n.windowIdx, n.labelsJSON, 1.2);
+      if (!back && n.windowIdx > 0) back = scrollTo(n.windowIdx - 1, n.labelsJSON, 1.6);
       if (!back) break;
       const b = readVisible(back);
       if (b.lastIdx < 0) break;
@@ -398,11 +526,26 @@ function run(argv) {
     }
     if (n.times && n.times.indexOf(cursor) < 0 && n.max > cursor) { holes++; log(`trou après ${fmt(cursor)}`); }
     r = n;
-    if (n.max <= cursor) { if (atEnd) break; still++; continue; }
+    still = 0;
+    if (n.max <= cursor) {
+      // Teams a ramené la liste en arrière : on repart vers l'avant. Ce n'est un blocage que si
+      // la lecture ne progresse plus du tout d'une passe à l'autre.
+      if (atEnd) break;
+      stuck = n.max > lastMax ? 0 : stuck + 1;
+      lastMax = n.max;
+      if (stuck >= 6) { giveUp('la liste ne progresse plus'); break; }
+      continue;
+    }
     grabPhotos(n);
     showProgress();
     cursor = n.max;
-    still = 0;
+    lastMax = n.max;
+    stuck = 0;
+  }
+  // Sans la ligne de fin, on ne peut pas être sûr d'avoir tout lu
+  if (!incomplete && !r.endHere && ![...entries.values()].some((e) => END_RE.test(e.text) && e.time >= cursor)) {
+    log('fin de transcription non vue');
+    incomplete = true;
   }
 
   // ---------- Résultat ----------
@@ -413,13 +556,15 @@ function run(argv) {
 
   if (debug) {
     const peek = (l) => l.slice(0, 60);
-    return `${lines.length} répliques en ${((Date.now() - tStart) / 1000).toFixed(1)} s au total (${((Date.now() - t0) / 1000).toFixed(1)} s de défilement), ${retries} relectures, ${jumps} reculs, ${holes} trous\n` + lines.slice(0, 3).map(peek).join('\n') + '\n...\n' + lines.slice(-3).map(peek).join('\n');
+    return `${incomplete ? 'INCOMPLET ? ' : ''}${resets ? resets + ' retours de Teams au début, ' : ''}${lines.length} répliques en ${((Date.now() - tStart) / 1000).toFixed(1)} s au total (${((Date.now() - t0) / 1000).toFixed(1)} s de défilement), ${retries} relectures, ${jumps} reculs, ${holes} trous\n` + lines.slice(0, 3).map(peek).join('\n') + '\n...\n' + lines.slice(-3).map(peek).join('\n');
   }
 
   // Le widget passe en carte finale ; il reçoit la transcription par un fichier
-  const data = { title: meetingTitle, date: meetingDate, rows: rows.map((r) => ({ time: fmt(r.time), speaker: r.speaker, text: r.text })), text, holes, photos };
+  const data = { title: meetingTitle, date: meetingDate, rows: rows.map((r) => ({ time: fmt(r.time), speaker: r.speaker, text: r.text })), text, holes, incomplete, photos };
   writeFile('derniere-transcription.json', JSON.stringify(data));
   writeFile('photos.json', JSON.stringify(photos));
+  journal.push(`fin : ${lines.length} répliques, ${resets} retours de Teams au début, ${jumps} reculs, ${holes} trous${incomplete ? ', peut-être incomplet' : ''}`);
+  writeFile('journal.txt', journal.join('\n'));
   // Laisser voir la barre pleine avant que la fenêtre ne s'agrandisse
   report({ state: 'progress', label: 'Terminé', detail: `${lines.length} répliques copiées`, percent: 1 });
   delay(0.4);
