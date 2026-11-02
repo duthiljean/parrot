@@ -31,7 +31,7 @@ https://github.com/user-attachments/assets/fb70c5db-a8e2-461a-b3d2-76a9403390c5
 - La **nouvelle application Microsoft Teams**, en **français ou en anglais**.
 - Une réunion avec une **transcription** disponible.
 
-Parrot ne fonctionne pas sur Windows ni sur Linux, ni avec Teams dans un navigateur.
+Sur Windows, sur Linux ou avec Teams dans un navigateur, Parrot ne marche pas tel quel, mais tu peux le faire adapter : voir [Sur Windows ou Linux](#sur-windows-ou-linux).
 
 > **À vérifier avant de l'utiliser :** si ton entreprise a bloqué le téléchargement des transcriptions, assure-toi que cet outil est autorisé. Une transcription contient les propos d'autres personnes : vérifie aussi que tu peux les envoyer à une IA.
 
@@ -69,6 +69,20 @@ Parrot lit la fenêtre de Teams grâce à l'accessibilité de macOS, comme un le
 1. Ouvre l'app **Raccourcis** et crée un nouveau raccourci.
 2. Ajoute l'action **Ouvrir l'app** et choisis **Parrot**.
 3. Clique sur **ⓘ**, puis sur **Ajouter un raccourci clavier**, et appuie par exemple sur ⌃⌥T.
+
+## Sur Windows ou Linux
+
+Parrot est fait pour Mac, mais tout son fonctionnement est décrit dans [PORTAGE.md](PORTAGE.md). Un assistant de code comme Claude Code, Codex, Cursor ou GitHub Copilot peut s'en servir pour t'en créer une version adaptée à ton ordinateur.
+
+1. Télécharge le projet : bouton vert **Code**, puis **Download ZIP**, et décompresse le fichier.
+2. Ouvre ce dossier dans ton assistant de code.
+3. Copie ce message, puis envoie-le :
+
+   ```text
+   Lis AGENTS.md et PORTAGE.md, puis adapte Parrot à mon ordinateur sous Windows. Pose-moi d'abord les questions utiles, explique-moi chaque étape simplement, demande-moi avant d'installer quoi que ce soit, et teste avec moi sur une vraie transcription Teams.
+   ```
+
+Remplace « Windows » par ton système si besoin. Cette version n'est ni fournie ni testée par le projet : c'est ton assistant qui l'écrit, alors vérifie ce qu'il installe, et respecte les règles de ton entreprise.
 
 ## Utilisation
 
@@ -149,6 +163,8 @@ Télécharge la nouvelle version, puis relance `zsh install.sh`. Ton autorisatio
 | `src/widget.js` | La fenêtre : progression, nettoyage, exports |
 | `src/widget-app.js` | Lance la fenêtre dans `Parrot Widget.app` |
 | `assets/` | Logo |
+| `PORTAGE.md` | Guide pour adapter Parrot à Windows ou Linux avec un assistant de code |
+| `AGENTS.md` | Consignes lues par les assistants de code |
 
 `Parrot.app` n'est qu'un petit lanceur parce qu'elle est signée sans compte développeur Apple : macOS relie alors l'autorisation à l'empreinte exacte de l'app. Reconstruire l'app ferait perdre l'autorisation, alors que le reste peut évoluer librement. Pour la reconstruire quand même : `zsh install.sh --rebuild-app`.
 
