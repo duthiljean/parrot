@@ -12,9 +12,9 @@ Parrot le fait à ta place : il fait défiler la transcription tout seul, récup
 
 ## Démo en vidéo
 
-https://github.com/user-attachments/assets/5366192d-0b81-4650-b2f5-53539288d6b5
+https://github.com/user-attachments/assets/fb70c5db-a8e2-461a-b3d2-76a9403390c5
 
-<sub>Active le son dans le lecteur. Interface recréée et données fictives. Voix : elevenlabs.io. [Version haute qualité](https://github.com/duthiljean/parrot/releases/download/v1.0.0/parrot-demo-v3.mp4) (33 Mo).</sub>
+<sub>Active le son dans le lecteur. Interface recréée et données fictives. Voix : elevenlabs.io. [Version haute qualité](https://github.com/duthiljean/parrot/releases/download/v1.0.0/parrot-demo-v4.mp4) (33 Mo).</sub>
 
 ## Ce que fait Parrot
 
